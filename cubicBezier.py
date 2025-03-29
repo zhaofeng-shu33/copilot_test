@@ -55,6 +55,39 @@ class CubicBezier:
                 magnitude = np.linalg.norm(normal_vector)
             return normal_vector / magnitude if magnitude != 0 else np.zeros(3)
 
+    def interpolate_2d(self, tx, Px, ty, Py):
+        """
+        Modify self.P1 and self.P2 such that self.point(tx) = Px and self.point(ty) = Py.
+        """
+        # Coefficients for the Bézier curve equation at tx
+        B0_tx = (1 - tx)**3
+        B1_tx = 3 * (1 - tx)**2 * tx
+        B2_tx = 3 * (1 - tx) * tx**2
+        B3_tx = tx**3
+
+        # Coefficients for the Bézier curve equation at ty
+        B0_ty = (1 - ty)**3
+        B1_ty = 3 * (1 - ty)**2 * ty
+        B2_ty = 3 * (1 - ty) * ty**2
+        B3_ty = ty**3
+
+        # Linear system to solve for P1 and P2
+        A = np.array([
+            [B1_tx, B2_tx],
+            [B1_ty, B2_ty]
+        ])
+        B = np.array([
+            Px - (B0_tx * self.P0 + B3_tx * self.P3),
+            Py - (B0_ty * self.P0 + B3_ty * self.P3)
+        ])
+
+        # Solve the linear system
+        P1_P2 = np.linalg.solve(A, B)
+
+        # Update P1 and P2
+        self.P1 = P1_P2[0]
+        self.P2 = P1_P2[1]
+
 if __name__ == '__main__':
     a = 43.654448687742594
     b = 23.892977503339033
@@ -70,3 +103,7 @@ if __name__ == '__main__':
     print(cB.point(0.4))
     print(cB.derivative(0.7))
     print(cB.curvature(0), cB.curvature(1)) # 1/45, 1/30
+    # invoke the method of interpolation
+    cB.interpolate_2d(0.5, np.array([50, 50]), 0.8, np.array([80, 20]))
+    print(cB.P1, cB.P2)
+    print(cB.point(0.5), cB.point(0.8))
