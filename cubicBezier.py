@@ -54,3 +54,19 @@ class CubicBezier:
                 normal_vector = np.cross(d1, v)
                 magnitude = np.linalg.norm(normal_vector)
             return normal_vector / magnitude if magnitude != 0 else np.zeros(3)
+
+if __name__ == '__main__':
+    a = 43.654448687742594
+    b = 23.892977503339033
+    alpha = 1.0471975511965976
+    beta = 0.7853981633974483
+    import numpy as np
+    P0=np.array([0,0])
+    P1=np.array([a*np.cos(alpha),a*np.sin(alpha)])
+    P2=np.array([100-b*np.cos(beta),b*np.sin(beta)])
+    P3=np.array([100,0])
+    cB = CubicBezier(P0,P1,P2,P3)
+    print(cB.point(0), cB.point(1))
+    print(cB.point(0.4))
+    print(cB.derivative(0.7))
+    print(cB.curvature(0), cB.curvature(1)) # 1/45, 1/30
