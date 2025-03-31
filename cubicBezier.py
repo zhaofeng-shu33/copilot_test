@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.integrate import quad
 
 class CubicBezier:
     def __init__(self, P0, P1, P2, P3):
@@ -88,22 +89,45 @@ class CubicBezier:
         self.P1 = P1_P2[0]
         self.P2 = P1_P2[1]
 
+    def arc_len(self, t, tol=0.01):
+        """
+        Compute the arc length of the curve from 0 to t.
+        
+        Parameters:
+        - t: The parameter value up to which the arc length is computed (0 <= t <= 1).
+        - tol: The tolerance for the numerical integration.
+        
+        Returns:
+        - The arc length from 0 to t.
+        """
+        # Define the integrand as the norm of the derivative
+        def integrand(u):
+            return np.linalg.norm(self.derivative(u))
+        
+        # Use scipy's quad function to integrate ||r'(t)|| from 0 to t
+        arc_length, _ = quad(integrand, 0, t, epsabs=tol)
+        return arc_length
+
 if __name__ == '__main__':
     a = 43.654448687742594
     b = 23.892977503339033
     alpha = 1.0471975511965976
     beta = 0.7853981633974483
     import numpy as np
-    P0=np.array([0,0])
-    P1=np.array([a*np.cos(alpha),a*np.sin(alpha)])
-    P2=np.array([100-b*np.cos(beta),b*np.sin(beta)])
-    P3=np.array([100,0])
+    P0=np.array([0,0,0])
+    P1=np.array([a*np.cos(alpha),a*np.sin(alpha),0])
+    P2=np.array([100-b*np.cos(beta),b*np.sin(beta),0])
+    P3=np.array([1000,0,0])
     cB = CubicBezier(P0,P1,P2,P3)
-    print(cB.point(0), cB.point(1))
-    print(cB.point(0.4))
-    print(cB.derivative(0.7))
-    print(cB.curvature(0), cB.curvature(1)) # 1/45, 1/30
+  
     # invoke the method of interpolation
-    cB.interpolate_2d(0.5, np.array([50, 50]), 0.8, np.array([80, 20]))
+    Py = [65.5389, 89.6769, 0]
+    Px = [38.8343,58.1767, 0]
+    cB.interpolate_2d(0.3, np.array(Px), 0.4, np.array(Py))
     print(cB.P1, cB.P2)
-    print(cB.point(0.5), cB.point(0.8))
+    a = cB.derivative(0)
+    print(np.arctan(a[1]/a[0]) * 180 / np.pi)
+    print(cB.point(0.0), cB.point(1.0))
+    print(cB.point(0.3))
+    print(cB.arc_len(0.3))
+    print(cB.arc_len(0.4))
